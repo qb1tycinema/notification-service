@@ -7,7 +7,7 @@
   "license": "UNLICENSED",
   "scripts": {
     "build": "nest build",
-    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
+    "format": "prettier --write \"src/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
@@ -21,8 +21,13 @@
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
+    "@nestjs/config": "^12.0.0",
     "@nestjs/core": "^11.0.1",
+    "@nestjs/microservices": "^12.0.1",
     "@nestjs/platform-express": "^11.0.1",
+    "@qb1tycinema/core": "^1.0.3",
+    "amqp-connection-manager": "^5.0.0",
+    "amqplib": "^2.0.1",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1"
   },
