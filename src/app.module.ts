@@ -1,9 +1,10 @@
 import { Module } from "@nestjs/common"
-import { RmqModule } from './infrastructure/rmq/rmq.module';
-import { ConfigModule } from "@nestjs/config";
-import { NotificationsModule } from './modules/notifications/notifications.module';
-import { MailModule } from './infrastructure/mail/mail.module';
-import { configuration } from "./config";
+import { ConfigModule } from "@nestjs/config"
+
+import { configuration } from "./config"
+import { MailModule } from "./infrastructure/mail/mail.module"
+import { RmqModule } from "./infrastructure/rmq/rmq.module"
+import { NotificationsModule } from "./modules/notifications/notifications.module"
 
 @Module({
 	imports: [
