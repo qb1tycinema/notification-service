@@ -1,10 +1,11 @@
-import { Global, Module } from '@nestjs/common';
-import { RmqService } from './rmq.service';
+import { Global, Module } from "@nestjs/common"
+
+import { RmqService } from "./rmq.service"
 
 @Global()
 @Module({
-  controllers: [],
-  providers: [RmqService],
-  exports: [RmqService]
+	controllers: [],
+	providers: [RmqService],
+	exports: [RmqService]
 })
 export class RmqModule {}
