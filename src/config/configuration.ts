@@ -17,6 +17,14 @@ export default () => {
 		rmq: {
 			url: env.RMQ_URL,
 			queue: env.RMQ_QUEUE
+		},
+		smtp: {
+			host: env.SMTP_HOST,
+			port: env.SMTP_PORT,
+			username: env.SMTP_USERNAME,
+			password: env.SMTP_PASSWORD,
+			fromAddress: env.SMTP_FROM_ADDRESS,
+			secure: env.SMTP_SECURE
 		}
 	}
 }
