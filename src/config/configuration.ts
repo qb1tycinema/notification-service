@@ -25,6 +25,10 @@ export default () => {
 			password: env.SMTP_PASSWORD,
 			fromAddress: env.SMTP_FROM_ADDRESS,
 			secure: env.SMTP_SECURE
+		},
+		mobizon: {
+			apiKey: env.MOBIZON_API_KEY,
+			domain: env.MOBIZON_DOMAIN
 		}
 	}
 }
