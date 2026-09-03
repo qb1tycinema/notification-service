@@ -3,6 +3,7 @@ import { Module } from "@nestjs/common"
 import { ConfigService } from "@nestjs/config"
 
 import { MailService } from "./mail.service"
+import { TemplateService } from "./template.service"
 import { getMailerConfig } from "@/config/factories"
 
 @Module({
@@ -12,7 +13,7 @@ import { getMailerConfig } from "@/config/factories"
 			inject: [ConfigService]
 		})
 	],
-	providers: [MailService],
+	providers: [MailService, TemplateService],
 	exports: [MailService]
 })
 export class MailModule {}
