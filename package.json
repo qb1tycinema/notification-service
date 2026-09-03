@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "@nestjs-modules/mailer": "^2.3.7",
+    "@nestjs/axios": "^12.0.0",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.4",
     "@nestjs/core": "^11.0.1",
@@ -31,6 +32,7 @@
     "@qb1tycinema/core": "^1.0.3",
     "amqp-connection-manager": "^5.0.0",
     "amqplib": "^2.0.1",
+    "axios": "^1.20.0",
     "handlebars": "^4.7.9",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
