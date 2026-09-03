@@ -17,5 +17,8 @@ export default z.object({
 	SMTP_USERNAME: z.string().nonempty(),
 	SMTP_PASSWORD: z.string().nonempty(),
 	SMTP_FROM_ADDRESS: z.string().email().nonempty(),
-	SMTP_SECURE: z.string().transform(v => v === "true")
+	SMTP_SECURE: z.string().transform(v => v === "true"),
+
+	MOBIZON_API_KEY: z.string().nonempty(),
+	MOBIZON_DOMAIN: z.string().nonempty()
 })
