@@ -37,6 +37,13 @@ export class SmsService {
 		})
 	}
 
+	public async sendPhoneChange(phone: string, code: string) {
+		return this.send({
+			recipient: phone,
+			text: `Ваш код подтверждения смены номера телефона: ${code}`
+		})
+	}
+
 	public async send(
 		data: SendSmsRequest
 	): Promise<MobizonResponse<SendSmsResponse>> {
