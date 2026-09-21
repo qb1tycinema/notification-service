@@ -10,10 +10,10 @@ export class TemplateService {
 	public async render(template: string, context?: Record<string, any>) {
 		if (!this.cache.has(template)) {
 			const templatePath = path.join(
-                __dirname,
-                "templates",
-                `${template}.hbs`
-            )
+				__dirname,
+				"templates",
+				`${template}.hbs`
+			)
 
 			const file = fs.readFileSync(templatePath, "utf-8")
 
