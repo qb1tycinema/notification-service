@@ -44,16 +44,18 @@ export class RmqMetricsInterceptor implements NestInterceptor {
 		})
 
 		return next.handle().pipe(
-			tap(() => {
-				this.logger.log(`Success processing event [${event}]:`)
+			tap({
+				complete: () => {
+					this.logger.log(`Success processing event [${event}]`)
 
-				this.eventsTotal.inc({
-					service: this.serviceName,
-					event,
-					status: "success"
-				})
+					this.eventsTotal.inc({
+						service: this.serviceName,
+						event,
+						status: "success"
+					})
 
-				this.rmqService.ack(ctx, event)
+					this.rmqService.ack(ctx, event)
+				}
 			}),
 			catchError(error => {
 				this.logger.error(`Error processing event [${event}]:`, error)
