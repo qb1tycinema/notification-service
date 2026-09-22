@@ -1,4 +1,4 @@
-import { Controller } from "@nestjs/common"
+import { Controller, UseInterceptors } from "@nestjs/common"
 import { EventPattern, Payload } from "@nestjs/microservices"
 import type {
 	EmailChangeEvent,
@@ -7,11 +7,13 @@ import type {
 } from "@qb1tycinema/contracts"
 
 import { NotificationsService } from "./notifications.service"
+import { RmqMetricsInterceptor } from "@/observability/metrics/rmq-metrics.interceptors"
 
 @Controller()
+@UseInterceptors(RmqMetricsInterceptor)
 export class NotificationsController {
 	public constructor(
-		private readonly notificationsService: NotificationsService,
+		private readonly notificationsService: NotificationsService
 	) {}
 
 	@EventPattern("auth.otp.requested")
