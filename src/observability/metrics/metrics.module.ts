@@ -5,10 +5,6 @@ import {
 	PrometheusModule
 } from "@willsoto/nestjs-prometheus"
 
-import { RmqModule } from "@/infrastructure/rmq/rmq.module"
-import { RmqMetricsInterceptor } from "./rmq-metrics.interceptors"
-import { APP_INTERCEPTOR } from "@nestjs/core"
-
 @Global()
 @Module({
 	imports: [
@@ -17,8 +13,7 @@ import { APP_INTERCEPTOR } from "@nestjs/core"
 			defaultMetrics: {
 				enabled: true
 			}
-		}),
-		RmqModule
+		})
 	],
 	providers: [
 		makeHistogramProvider({
@@ -41,11 +36,7 @@ import { APP_INTERCEPTOR } from "@nestjs/core"
 			name: "rmq_events_nack_total",
 			help: "Total NACKed RabbitMQ events",
 			labelNames: ["service", "event"]
-		}),
-		{
-			provide: APP_INTERCEPTOR,
-			useClass: RmqMetricsInterceptor
-		}
+		})
 	],
 	exports: [
 		"PROM_METRIC_RMQ_EVENT_PROCESSING_DURATION_SECONDS",
