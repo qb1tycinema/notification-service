@@ -29,6 +29,9 @@ export default () => {
 		mobizon: {
 			apiKey: env.MOBIZON_API_KEY,
 			domain: env.MOBIZON_DOMAIN
+		},
+		jaeger: {
+			url: env.JAEGER_URL
 		}
 	}
 }
