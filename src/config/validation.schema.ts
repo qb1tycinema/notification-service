@@ -20,5 +20,7 @@ export default z.object({
 	SMTP_SECURE: z.string().transform(v => v === "true"),
 
 	MOBIZON_API_KEY: z.string().nonempty(),
-	MOBIZON_DOMAIN: z.string().nonempty()
+	MOBIZON_DOMAIN: z.string().nonempty(),
+
+	JAEGER_URL: z.string().nonempty()
 })
