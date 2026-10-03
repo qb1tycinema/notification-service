@@ -6,6 +6,12 @@ import {
 	type NestInterceptor
 } from "@nestjs/common"
 import type { RmqContext } from "@nestjs/microservices"
+import {
+	context as otelContext,
+	propagation,
+	SpanStatusCode,
+	trace
+} from "@opentelemetry/api"
 import { InjectMetric } from "@willsoto/nestjs-prometheus"
 import { Counter, Histogram } from "prom-client"
 import { catchError, finalize, type Observable, tap, throwError } from "rxjs"
@@ -37,42 +43,69 @@ export class RmqMetricsInterceptor implements NestInterceptor {
 
 		const ctx = context.switchToRpc().getContext<RmqContext>()
 		const event = ctx.getPattern()
+		const message = ctx.getMessage()
 
-		const endTimer = this.processingDuration.startTimer({
-			service: this.serviceName,
-			event
-		})
+		const headers = message?.properties?.headers || {}
 
-		return next.handle().pipe(
-			tap({
-				complete: () => {
-					this.logger.log(`Success processing event [${event}]`)
+		const parentContext = propagation.extract(otelContext.active(), headers)
+		const tracer = trace.getTracer("notification-service")
 
-					this.eventsTotal.inc({
-						service: this.serviceName,
-						event,
-						status: "success"
-					})
-
-					this.rmqService.ack(ctx, event)
-				}
-			}),
-			catchError(error => {
-				this.logger.error(`Error processing event [${event}]:`, error)
-
-				this.eventsTotal.inc({
+		return tracer.startActiveSpan(
+			`RMQ Consume: ${event}`,
+			{},
+			parentContext,
+			span => {
+				const endTimer = this.processingDuration.startTimer({
 					service: this.serviceName,
-					event,
-					status: "error"
+					event
 				})
 
-				this.rmqService.nack(ctx, event)
+				return next.handle().pipe(
+					tap({
+						complete: () => {
+							this.logger.log(
+								`Success processing event [${event}]`
+							)
 
-				return throwError(() => error)
-			}),
-			finalize(() => {
-				endTimer()
-			})
+							this.eventsTotal.inc({
+								service: this.serviceName,
+								event,
+								status: "success"
+							})
+
+							this.rmqService.ack(ctx, event)
+
+							span.setStatus({ code: SpanStatusCode.OK })
+						}
+					}),
+					catchError(error => {
+						this.logger.error(
+							`Error processing event [${event}]:`,
+							error
+						)
+
+						this.eventsTotal.inc({
+							service: this.serviceName,
+							event,
+							status: "error"
+						})
+
+						this.rmqService.nack(ctx, event)
+
+						span.setStatus({
+							code: SpanStatusCode.ERROR,
+							message: error.message || "unknown message"
+						})
+						span.recordException(error)
+
+						return throwError(() => error)
+					}),
+					finalize(() => {
+						endTimer()
+						span.end()
+					})
+				)
+			}
 		)
 	}
 }
