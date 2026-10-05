@@ -22,5 +22,7 @@ export default z.object({
 	MOBIZON_API_KEY: z.string().nonempty(),
 	MOBIZON_DOMAIN: z.string().nonempty(),
 
-	JAEGER_URL: z.string().nonempty()
+	JAEGER_URL: z.string().nonempty(),
+
+	LOGGER_LEVEL: z.string().nonempty()
 })
