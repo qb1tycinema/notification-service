@@ -1,7 +1,9 @@
 import { Module } from "@nestjs/common"
-import { ConfigModule } from "@nestjs/config"
+import { ConfigModule, ConfigService } from "@nestjs/config"
+import { LoggerModule } from "nestjs-pino"
 
 import { configuration } from "./config"
+import { getPinoConfig } from "./config/factories"
 import { MailModule } from "./infrastructure/mail/mail.module"
 import { RmqModule } from "./infrastructure/rmq/rmq.module"
 import { SmsModule } from "./infrastructure/sms/sms.module"
@@ -19,6 +21,10 @@ import { ObservabilityModule } from "./observability/observability.module"
 			],
 			load: [configuration],
 			expandVariables: true
+		}),
+		LoggerModule.forRootAsync({
+			useFactory: getPinoConfig,
+			inject: [ConfigService]
 		}),
 		RmqModule,
 		ObservabilityModule,
