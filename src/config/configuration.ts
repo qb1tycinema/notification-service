@@ -32,6 +32,9 @@ export default () => {
 		},
 		jaeger: {
 			url: env.JAEGER_URL
+		},
+		logger: {
+			level: env.LOGGER_LEVEL
 		}
 	}
 }
