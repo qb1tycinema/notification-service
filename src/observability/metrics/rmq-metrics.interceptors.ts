@@ -2,7 +2,6 @@ import {
 	type CallHandler,
 	type ExecutionContext,
 	Injectable,
-	Logger,
 	type NestInterceptor
 } from "@nestjs/common"
 import type { RmqContext } from "@nestjs/microservices"
@@ -13,6 +12,7 @@ import {
 	trace
 } from "@opentelemetry/api"
 import { InjectMetric } from "@willsoto/nestjs-prometheus"
+import { PinoLogger } from "nestjs-pino"
 import { Counter, Histogram } from "prom-client"
 import { catchError, finalize, type Observable, tap, throwError } from "rxjs"
 
@@ -21,9 +21,9 @@ import { RmqService } from "@/infrastructure/rmq/rmq.service"
 @Injectable()
 export class RmqMetricsInterceptor implements NestInterceptor {
 	private readonly serviceName!: string
-	private readonly logger = new Logger(RmqMetricsInterceptor.name)
 
 	public constructor(
+		private readonly logger: PinoLogger,
 		@InjectMetric("rmq_event_processing_duration_seconds")
 		private readonly processingDuration: Histogram<string>,
 		@InjectMetric("rmq_events_total")
@@ -31,6 +31,7 @@ export class RmqMetricsInterceptor implements NestInterceptor {
 		private readonly rmqService: RmqService
 	) {
 		this.serviceName = "notification-service"
+		this.logger.setContext(RmqMetricsInterceptor.name)
 	}
 
 	public intercept(
@@ -46,15 +47,21 @@ export class RmqMetricsInterceptor implements NestInterceptor {
 		const message = ctx.getMessage()
 
 		const headers = message?.properties?.headers || {}
+		const messageId = message?.properties?.messageId
 
 		const parentContext = propagation.extract(otelContext.active(), headers)
-		const tracer = trace.getTracer("notification-service")
+		const tracer = trace.getTracer(this.serviceName)
 
 		return tracer.startActiveSpan(
 			`RMQ Consume: ${event}`,
 			{},
 			parentContext,
 			span => {
+				this.logger.info(
+					{ event, messageId },
+					"Received RMQ event for processing"
+				)
+
 				const endTimer = this.processingDuration.startTimer({
 					service: this.serviceName,
 					event
@@ -63,8 +70,9 @@ export class RmqMetricsInterceptor implements NestInterceptor {
 				return next.handle().pipe(
 					tap({
 						complete: () => {
-							this.logger.log(
-								`Success processing event [${event}]`
+							this.logger.debug(
+								{ event, messageId },
+								"Successfully processed and acknowledged RMQ event"
 							)
 
 							this.eventsTotal.inc({
@@ -80,8 +88,8 @@ export class RmqMetricsInterceptor implements NestInterceptor {
 					}),
 					catchError(error => {
 						this.logger.error(
-							`Error processing event [${event}]:`,
-							error
+							{ err: error, event, messageId },
+							"Error processing RMQ event, negatively acknowledged"
 						)
 
 						this.eventsTotal.inc({
